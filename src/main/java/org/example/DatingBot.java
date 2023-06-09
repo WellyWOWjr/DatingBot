@@ -1,6 +1,8 @@
 package org.example;
 
-import lombok.SneakyThrows;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -8,9 +10,6 @@ import org.telegram.telegrambots.meta.api.methods.updates.SetWebhook;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.starter.SpringWebhookBot;
-
-import java.util.HashMap;
-import java.util.Map;
 
 
 //https://api.telegram.org/bot6216527032:AAHLBgtiiyHK6ZMkIluoiFi6PjpZsictQUk/setWebhook?url=https://d81f-46-53-253-234.ngrok-free.app
@@ -37,12 +36,12 @@ public class DatingBot extends SpringWebhookBot {
     private BotApiMethod<?> handleCommand(Message message) {
         String command = message.getText();
         switch (command) {
-            case "/start" -> {
+            case "/start": {
                 chats.put(message.getChatId(), new DatingRunner());
                 String response = chats.get(message.getChatId()).runStart();
                 return new SendMessage(message.getChatId().toString(), response);
             }
-            case "/me" -> {
+            case "/me": {
                 String response;
                 if (chats.get(message.getChatId()) != null) {
                     response = chats.get(message.getChatId()).runMe();

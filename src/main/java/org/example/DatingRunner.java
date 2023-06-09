@@ -13,16 +13,16 @@ public class DatingRunner implements Runner {
     @Override
     public String run(String message) {
         switch (state) {
-            case START -> {
+            case START: {
                 return runStart();
             }
-            case NAME -> {
+            case NAME: {
                 return runName(message);
             }
-            case AGE -> {
+            case AGE: {
                 return runAge(message);
             }
-            case QUESTION -> {
+            case QUESTION: {
                 return runQuestion();
             }
         }
