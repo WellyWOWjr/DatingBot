@@ -12,10 +12,10 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.starter.SpringWebhookBot;
 
 
-//https://api.telegram.org/bot6216527032:AAHLBgtiiyHK6ZMkIluoiFi6PjpZsictQUk/setWebhook?url=https://d81f-46-53-253-234.ngrok-free.app
+//https://api.telegram.org/bot6216527032:AAHLBgtiiyHK6ZMkIluoiFi6PjpZsictQUk/setWebhook?url=https://datingbot.onrender.com
 @Component
 public class DatingBot extends SpringWebhookBot {
-    public static String PATH = "https://d81f-46-53-253-234.ngrok-free.app";
+    public static String PATH = "https://datingbot.onrender.com";
     Map<Long, DatingRunner> chats = new HashMap<>();
 
     public DatingBot() {
