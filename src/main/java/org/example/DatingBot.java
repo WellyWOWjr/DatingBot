@@ -3,6 +3,8 @@ package org.example;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -12,10 +14,12 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.starter.SpringWebhookBot;
 
 
-//https://api.telegram.org/bot6216527032:AAHLBgtiiyHK6ZMkIluoiFi6PjpZsictQUk/setWebhook?url=https://datingbot.onrender.com
+//https://api.telegram.org/bot6216527032:AAHLBgtiiyHK6ZMkIluoiFi6PjpZsictQUk/setWebhook?url=https://4fec-151-249-141-199.eu.ngrok.io
 @Component
 public class DatingBot extends SpringWebhookBot {
-    public static String PATH = "https://datingbot.onrender.com";
+    private static final Logger log = LoggerFactory.getLogger(DatingBot.class);
+
+    public static String PATH = "https://4fec-151-249-141-199.eu.ngrok.io";
     Map<Long, DatingRunner> chats = new HashMap<>();
 
     public DatingBot() {
@@ -26,40 +30,65 @@ public class DatingBot extends SpringWebhookBot {
 
     @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
-        System.out.println(update);
-        if (update.getMessage().isCommand()) {
-            return handleCommand(update.getMessage());
+        log.info("Initial update {}", update);
+        try {
+            Message message = getMessage(update);
+            if (chats.get(message.getChatId()) == null) {
+                return runStart(message);
+            }
+            if (update.hasCallbackQuery()) {
+                log.info("Callback");
+                DatingRunner runner = chats
+                        .get(update.getCallbackQuery().getMessage().getChatId());
+                BotApiMethod<?> callbackResponse = runner.runCallBack(update);
+                execute(callbackResponse);
+                return runner.runShow(message);
+            }
+            if (update.getMessage().isCommand()) {
+                return handleCommand(update.getMessage());
+            }
+            return handleMessage(update.getMessage());
+        } catch (Exception e) {
+            log.error("GG", e);
         }
-        return handleMessage(update.getMessage());
+        return new SendMessage();
+    }
+
+    private Message getMessage(Update update) {
+        Message message;
+        if (update.getMessage() != null) {
+            message = update.getMessage();
+        } else {
+            message = update.getCallbackQuery().getMessage();
+        }
+        return message;
     }
 
     private BotApiMethod<?> handleCommand(Message message) {
         String command = message.getText();
         switch (command) {
             case "/start": {
-                chats.put(message.getChatId(), new DatingRunner());
-                String response = chats.get(message.getChatId()).runStart();
-                return new SendMessage(message.getChatId().toString(), response);
+                return runStart(message);
             }
             case "/me": {
-                String response;
-                if (chats.get(message.getChatId()) != null) {
-                    response = chats.get(message.getChatId()).runMe();
-                } else {
-                    response = "You don't have profile.\uD83E\uDEE0";
-                }
-                return new SendMessage(message.getChatId().toString(), response);
+                return chats.get(message.getChatId()).runMe(message);
+            }
+            case "/show": {
+                return chats.get(message.getChatId()).runShow(message);
             }
         }
         //Todo
         return null;
     }
 
+    private BotApiMethod<?> runStart(Message message) {
+        chats.put(message.getChatId(), new DatingRunner());
+        return chats.get(message.getChatId()).runStart(message);
+    }
+
 
     private BotApiMethod<?> handleMessage(Message message) {
-        String request = message.getText();
-        String response = chats.get(message.getChatId()).run(request);
-        return new SendMessage(message.getChatId().toString(), response);
+        return chats.get(message.getChatId()).run(message);
     }
 
 

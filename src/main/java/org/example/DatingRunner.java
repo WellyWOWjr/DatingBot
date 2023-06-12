@@ -1,20 +1,30 @@
 package org.example;
 
-public class DatingRunner implements Runner {
-    private State state = State.START;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+
+public class DatingRunner implements Runner {
     private final Profile profile;
+    private final InlineKeyboardMaker keyboardMaker = new InlineKeyboardMaker();
+    private State state = State.START;
 
     public DatingRunner() {
         this.profile = new Profile();
-
     }
 
+
     @Override
-    public String run(String message) {
+    public BotApiMethod<?> run(Message message) {
         switch (state) {
             case START: {
-                return runStart();
+                return runStart(message);
             }
             case NAME: {
                 return runName(message);
@@ -23,33 +33,66 @@ public class DatingRunner implements Runner {
                 return runAge(message);
             }
             case QUESTION: {
-                return runQuestion();
+                return runQuestion(message);
             }
+            case SHOW:
+                return runShow(message);
+
         }
         return null;
     }
 
-    public String runStart() {
-        return changeStateTo(State.NAME);
+    public BotApiMethod<?> runShow(Message message) {
+        List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
+        List<InlineKeyboardButton> buttonLine = new ArrayList<>();
+        InlineKeyboardButton yes = new InlineKeyboardButton();
+        yes.setText("YES");
+        yes.setCallbackData("YES");
+        InlineKeyboardButton no = new InlineKeyboardButton();
+        no.setText("no");
+        no.setCallbackData("no");
+        buttonLine.add(yes);
+        buttonLine.add(no);
+        buttons.add(buttonLine);
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        markup.setKeyboard(buttons);
+
+        String profile = "Profile Example";
+        SendMessage sendMessage = new SendMessage(message.getChatId().toString(), profile);
+        sendMessage.setReplyMarkup(markup);
+        return sendMessage;
     }
 
-    private String runQuestion() {
+    public SendMessage runStart(Message message) {
+        String response = changeStateTo(State.NAME);
+        return new SendMessage(message.getChatId().toString(), response);
+    }
+
+    private SendMessage runQuestion(Message message) {
         //todo new state
-        return changeStateTo(State.QUESTION);
+        String response = changeStateTo(State.SHOW);
+        return new SendMessage(message.getChatId().toString(), response);
     }
 
-    private String runAge(String age) {
-        profile.setAge(age);
-        return String.format(State.PROFILE.getPhrase(), profile.getName(), profile.getAge());
+    private SendMessage runAge(Message message) {
+        profile.setAge(message.getText());
+        String response = String.format(
+                State.PROFILE.getPhrase(),
+                profile.getName(),
+                profile.getAge());
+        changeStateTo(State.SHOW);
+        return new SendMessage(message.getChatId().toString(), response);
     }
 
-    private String runName(String name) {
-        profile.setName(name);
-        return changeStateTo(State.AGE);
+    private SendMessage runName(Message message) {
+        profile.setName(message.getText());
+        String response = changeStateTo(State.AGE);
+        return new SendMessage(message.getChatId().toString(), response);
     }
 
-    public String runMe() {
-        return profile.toString();
+    public SendMessage runMe(Message message) {
+        String response = profile.toString();
+        return new SendMessage(message.getChatId().toString(), response);
     }
 
     private String changeStateTo(State state) {
@@ -58,4 +101,11 @@ public class DatingRunner implements Runner {
         return state.getPhrase();
     }
 
+    public BotApiMethod<?> runCallBack(Update update) {
+        String data = update.getCallbackQuery().getData();
+        SendMessage sendMessage = new SendMessage(
+                update.getCallbackQuery().getMessage().getChatId().toString(),
+                "Your answer was " + data);
+        return sendMessage;
+    }
 }
