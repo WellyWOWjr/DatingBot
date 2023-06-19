@@ -1,4 +1,4 @@
-package org.example;
+package org.example.api.model;
 
 public enum State {
     START(""),
