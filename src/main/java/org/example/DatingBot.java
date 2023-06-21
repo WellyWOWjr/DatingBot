@@ -14,7 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.starter.SpringWebhookBot;
 
 
-//https://api.telegram.org/bot6216527032:AAHLBgtiiyHK6ZMkIluoiFi6PjpZsictQUk/setWebhook?url=https://4fec-151-249-141-199.eu.ngrok.io
+//https://api.telegram.org/bot6216527032:AAHLBgtiiyHK6ZMkIluoiFi6PjpZsictQUk/setWebhook?url=https://datingbot.onrender.com
 @Component
 public class DatingBot extends SpringWebhookBot {
     private static final Logger log = LoggerFactory.getLogger(DatingBot.class);
