@@ -14,12 +14,12 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.starter.SpringWebhookBot;
 
 
-//https://api.telegram.org/bot6216527032:AAHLBgtiiyHK6ZMkIluoiFi6PjpZsictQUk/setWebhook?url=https://datingbot.onrender.com
+//https://api.telegram.org/bot6216527032:AAHLBgtiiyHK6ZMkIluoiFi6PjpZsictQUk/setWebhook?url=https://edd9-46-53-253-234.ngrok-free.app
 @Component
 public class DatingBot extends SpringWebhookBot {
     private static final Logger log = LoggerFactory.getLogger(DatingBot.class);
 
-    public static String PATH = "https://4fec-151-249-141-199.eu.ngrok.io";
+    public static String PATH = "https://edd9-46-53-253-234.ngrok-free.app";
     Map<Long, DatingRunner> chats = new HashMap<>();
 
     public DatingBot() {
@@ -31,10 +31,12 @@ public class DatingBot extends SpringWebhookBot {
     @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
         log.info("Initial update {}", update);
+        // = sout (вывод информации в консоль)
         try {
             Message message = getMessage(update);
             if (chats.get(message.getChatId()) == null) {
                 return runStart(message);
+                //нет профиля - создаем
             }
             if (update.hasCallbackQuery()) {
                 log.info("Callback");
@@ -43,13 +45,17 @@ public class DatingBot extends SpringWebhookBot {
                 BotApiMethod<?> callbackResponse = runner.runCallBack(update);
                 execute(callbackResponse);
                 return runner.runShow(message);
+                //если есть Callback, создаем runner для конкретного ChatId и метод callbackResponse
             }
             if (update.getMessage().isCommand()) {
                 return handleCommand(update.getMessage());
+                //если ввели команду, выполняем соответствующий метод
             }
             return handleMessage(update.getMessage());
+            //ни один if не подходит - выполняем handleMessage()
         } catch (Exception e) {
             log.error("GG", e);
+            //если сообщение не получено(handleMessage() возвращает null) выводим GG в консоль
         }
         return new SendMessage();
     }
@@ -62,6 +68,7 @@ public class DatingBot extends SpringWebhookBot {
             message = update.getCallbackQuery().getMessage();
         }
         return message;
+        //если message - сообщение, то возвращаем его, иначе нажали на клавиатуру, message = callback, return message
     }
 
     private BotApiMethod<?> handleCommand(Message message) {

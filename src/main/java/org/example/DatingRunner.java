@@ -12,7 +12,6 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 
 public class DatingRunner implements Runner {
     private final Profile profile;
-    private final InlineKeyboardMaker keyboardMaker = new InlineKeyboardMaker();
     private State state = State.START;
 
     public DatingRunner() {
@@ -22,6 +21,7 @@ public class DatingRunner implements Runner {
 
     @Override
     public BotApiMethod<?> run(Message message) {
+        //поменяли параметр со String на Message, так как в будущем нужно добавлять фото в профиль
         switch (state) {
             case START: {
                 return runStart(message);
@@ -49,18 +49,20 @@ public class DatingRunner implements Runner {
         yes.setText("YES");
         yes.setCallbackData("YES");
         InlineKeyboardButton no = new InlineKeyboardButton();
-        no.setText("no");
-        no.setCallbackData("no");
+        no.setText("NO");
+        no.setCallbackData("NO");
         buttonLine.add(yes);
         buttonLine.add(no);
         buttons.add(buttonLine);
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         markup.setKeyboard(buttons);
+        //создаем две кнопки (да/нет)
 
         String profile = "Profile Example";
         SendMessage sendMessage = new SendMessage(message.getChatId().toString(), profile);
         sendMessage.setReplyMarkup(markup);
         return sendMessage;
+        //присылаем "профиль" с двумя кнопками под ним
     }
 
     public SendMessage runStart(Message message) {
@@ -69,7 +71,6 @@ public class DatingRunner implements Runner {
     }
 
     private SendMessage runQuestion(Message message) {
-        //todo new state
         String response = changeStateTo(State.SHOW);
         return new SendMessage(message.getChatId().toString(), response);
     }
@@ -103,9 +104,8 @@ public class DatingRunner implements Runner {
 
     public BotApiMethod<?> runCallBack(Update update) {
         String data = update.getCallbackQuery().getData();
-        SendMessage sendMessage = new SendMessage(
+        return new SendMessage(
                 update.getCallbackQuery().getMessage().getChatId().toString(),
                 "Your answer was " + data);
-        return sendMessage;
     }
 }
