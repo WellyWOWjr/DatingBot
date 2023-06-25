@@ -13,11 +13,11 @@ import org.springframework.data.redis.core.RedisHash;
 @NoArgsConstructor
 public class User {
     @Id
-    private String chatId;
+    private Long chatId;
     private State state;
     private Profile profile = new Profile();
 
-    public User(String chatId) {
+    public User(Long chatId) {
         state = State.START;
         profile = new Profile();
         this.chatId = chatId;

@@ -12,6 +12,6 @@ public class Profile {
 
     @Override
     public String toString() {
-        return "Твой профиль:\uD83D\uDC40\nТвоё имя: " + name + ".\nТвой возраст: " + age + ".";
+        return "Профиль:\uD83D\uDC40\nИмя: " + name + ".\nВозраст: " + age + ".";
     }
 }

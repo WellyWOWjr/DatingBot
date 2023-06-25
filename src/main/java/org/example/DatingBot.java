@@ -36,13 +36,17 @@ public class DatingBot extends SpringWebhookBot {
         this.callBackService = callBackService;
         this.userService = userService;
     }
+    // todo match
+    // если 2 человека нажали лайк на профиль друг друга, то выводим сообщение "........." с кнопкой "посмотреть",
+    // нажав на нее нам выводится профиль человека(теперь надо как-то ему написать)
+    // для этого надо запоминать тех, кого мы лайкнули, и смотреть лайкнули ли они нас(после каждого прожатого лайка)
 
     @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
         log.info("Initial update {}", update);
         try {
             Message message = getMessage(update);
-            if (!userService.existsUser(message.getChatId().toString())) {
+            if (!userService.existsUser(message.getChatId())) {
                 return messageService.runStart(message);
             }
             if (update.hasCallbackQuery()) {

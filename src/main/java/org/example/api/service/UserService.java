@@ -12,7 +12,7 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public boolean existsUser(String chatId) {
+    public boolean existsUser(Long chatId) {
         return userRepository.existsById(chatId);
     }
 }

@@ -25,7 +25,7 @@ public class MessageService {
 
     public BotApiMethod<?> run(Message message) {
         User user = userRepository
-                .findById(message.getChatId().toString())
+                .findById(message.getChatId())
                 .orElseThrow();
         switch (user.getState()) {
             case START: {
@@ -49,7 +49,7 @@ public class MessageService {
 
 
     public BotApiMethod<?> runShow(Message message) {
-        User user = userRepository.findById(message.getChatId().toString()).orElseThrow();
+        User user = userRepository.findById(message.getChatId()).orElseThrow();
         return runShow(user);
     }
 
@@ -60,8 +60,8 @@ public class MessageService {
         yes.setText("YES");
         yes.setCallbackData("YES");
         InlineKeyboardButton no = new InlineKeyboardButton();
-        no.setText("no");
-        no.setCallbackData("no");
+        no.setText("NO");
+        no.setCallbackData("NO");
         buttonLine.add(yes);
         buttonLine.add(no);
         buttons.add(buttonLine);
@@ -69,21 +69,21 @@ public class MessageService {
         markup.setKeyboard(buttons);
 
         String profile = "Profile Example";
-        SendMessage sendMessage = new SendMessage(user.getChatId(), profile);
+        //достаем из ?(юр, н, р) рандомного юзера и кладем в SendMessage user.getProfile().toString
+        SendMessage sendMessage = new SendMessage(user.getChatId().toString(), profile);
         sendMessage.setReplyMarkup(markup);
         return sendMessage;
     }
 
     public SendMessage runStart(Message message) {
-        String chatId = message.getChatId().toString();
+        Long chatId = message.getChatId();
         User user = new User(chatId);
         userRepository.save(user);
         String response = changeStateTo(State.NAME, user);
-        return new SendMessage(chatId, response);
+        return new SendMessage(chatId.toString(), response);
     }
 
     private SendMessage runQuestion(Message message, User user) {
-        //todo new state
         String response = changeStateTo(State.SHOW, user);
         return new SendMessage(message.getChatId().toString(), response);
     }
@@ -105,7 +105,7 @@ public class MessageService {
     }
 
     public SendMessage runMe(Message message) {
-        User user = userRepository.findById(message.getChatId().toString()).orElseThrow();
+        User user = userRepository.findById(message.getChatId()).orElseThrow();
         return runMe(message, user);
     }
 

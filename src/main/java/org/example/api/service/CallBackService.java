@@ -16,12 +16,11 @@ public class CallBackService {
     }
 
     public BotApiMethod<?> runCallBack(Update update) {
-        userRepository.findById(update.getCallbackQuery().getMessage().getChatId().toString());
+        userRepository.findById(update.getCallbackQuery().getMessage().getChatId());
         String data = update.getCallbackQuery().getData();
         SendMessage sendMessage = new SendMessage(
                 update.getCallbackQuery().getMessage().getChatId().toString(),
                 "Your answer was " + data);
-        return sendMessage;
     }
 }
 
